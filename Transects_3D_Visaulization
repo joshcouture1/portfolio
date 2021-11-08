@@ -1,0 +1,793 @@
+! pip install xlrd==1.2.0
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import OrderedDict
+from mpl_toolkits.mplot3d import Axes3D
+from numpy import linalg
+import matplotlib.colors as colors
+import numpy as np
+from matplotlib import cm
+
+# Open Spreadsheet in python
+excel_sheet = r'C:\Users\Josh Couture\Documents\Capstone\field_data_copy_xls.xls'
+col_names = ['SP', 'SX1', 'SX2', 'SY1', 'SY2', 'Stems', 'DBH', 'CX1', 'CX2', 'CY1', 'CY2', 'CZ1', 'CZ2', 'CZ3']
+
+# Plot Data
+fig, axes = plt.subplots(ncols=1, nrows=1, subplot_kw=dict(projection='3d'), figsize=(8, 8))
+fig.suptitle('Fire Plots: Thakadu', fontsize=16)
+ax_list = fig.axes
+
+plot_num = len(ax_list)
+
+for plot, ax in zip(range(plot_num), ax_list):
+    sht_name = 'P' + str(plot + 1)
+    print("Loading... " + sht_name)
+    df = pd.read_excel(excel_sheet, sheet_name=sht_name, usecols=col_names)
+    df = df.dropna()
+    df = df.reset_index(drop=True)
+
+    # Set the data for the radii
+    df['rx'] = (df.CX2 - df.CX1)/2
+    df['ry'] = (df.CY2 - df.CY1)/2
+    df['rz'] = (df.CZ3 - df.CZ1)/2
+    df['X'] = (df.CX2 + df.CX1)/2
+    df['Y'] = (df.CY2 + df.CY1)/2
+    df['Z'] = (df.CZ3 + df.CZ1)/2
+
+    # Get Number of Ellipsiods
+    ellipNumber = len(df['SP'].values)
+
+    # Set colour map so each ellipsoid as a unique colour
+    species = OrderedDict.fromkeys(df['SP'].values)
+
+    # Color code for species
+    color_code = {'S. mel': 'green',
+                  'GB': 'gray',
+                  'G. fla': 'blue',
+                  'C. her': 'black',
+                  'S. fle': 'pink',
+                  'G': 'olive',
+                  'D. cin': 'yellow',
+                  'R. bre': 'orange',
+                  'T. ser': 'gold',
+                  'R. ten': 'red',
+                  'V. eri': 'brown',
+                  'Sap': 'cyan',
+                  'G. bic': 'purple',
+                  'Z. muc': 'magenta'}
+
+    # Compute each and plot each ellipsoid iteratively
+    for row in range(ellipNumber):
+        # your ellispsoid and center in matrix form
+        A = np.array([[df['X'][row], 0, 0],
+                      [0, df['Y'][row], 0],
+                      [0, 0, df['Z'][row]]])
+
+        center = [df['X'][row], df['Y'][row], df['Z'][row]]
+
+        # print species
+        # find the rotation matrix and radii of the axes
+        U, s, rotation = linalg.svd(A)
+        radii = (df['rx'][row], df['ry'][row], df['rz'][row])
+
+        # calculate cartesian coordinates for the ellipsoid surface
+        u = np.linspace(0.0, 2.0 * np.pi, 100)
+        v = np.linspace(0.0, np.pi, 100)
+        x = radii[0] * np.outer(np.cos(u), np.sin(v))
+        y = radii[1] * np.outer(np.sin(u), np.sin(v))
+        z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+
+        for i in range(len(x)):
+            for j in range(len(x)):
+                [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation) + center
+
+        # Get species
+        specie = df['SP'][row]
+        ax.plot_surface(x, y, z, rstride=2, cstride=2, color=color_code[specie], linewidth=0.1, alpha=0.5, shade=True)
+    plt.show()
+#plt.savefig("YOUR PATH HERE", dpi=300)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import OrderedDict
+from mpl_toolkits.mplot3d import Axes3D
+from numpy import linalg
+import matplotlib.colors as colors
+import numpy as np
+from matplotlib import cm
+
+# Open Spreadsheet in python
+excel_sheet = r'C:\Users\Josh Couture\Documents\Capstone\field_data_copy_xls.xls'
+col_names = ['SP', 'SX1', 'SX2', 'SY1', 'SY2', 'Stems', 'DBH', 'CX1', 'CX2', 'CY1', 'CY2', 'CZ1', 'CZ2', 'CZ3']
+
+# Plot Data
+fig, axes = plt.subplots(ncols=1, nrows=1, subplot_kw=dict(projection='3d'), figsize=(8, 8))
+fig.suptitle('Fire Plots: Thakadu', fontsize=16)
+ax_list = fig.axes
+
+plot_num = len(ax_list)
+
+for plot, ax in zip(range(plot_num), ax_list):
+    sht_name = 'P2'
+    print("Loading... " + sht_name)
+    df = pd.read_excel(excel_sheet, sheet_name=sht_name, usecols=col_names)
+    df = df.dropna()
+    df = df.reset_index(drop=True)
+
+    # Set the data for the radii
+    df['rx'] = (df.CX2 - df.CX1)/2
+    df['ry'] = (df.CY2 - df.CY1)/2
+    df['rz'] = (df.CZ3 - df.CZ1)/2
+    df['X'] = (df.CX2 + df.CX1)/2
+    df['Y'] = (df.CY2 + df.CY1)/2
+    df['Z'] = (df.CZ3 + df.CZ1)/2
+
+    # Get Number of Ellipsiods
+    ellipNumber = len(df['SP'].values)
+
+    # Set colour map so each ellipsoid as a unique colour
+    species = OrderedDict.fromkeys(df['SP'].values)
+
+    # Color code for species
+    color_code = {'S. mel': 'green',
+                  'GB': 'gray',
+                  'G. fla': 'blue',
+                  'C. her': 'black',
+                  'S. fle': 'pink',
+                  'G': 'olive',
+                  'D. cin': 'yellow',
+                  'R. bre': 'orange',
+                  'T. ser': 'gold',
+                  'R. ten': 'red',
+                  'V. eri': 'brown',
+                  'Sap': 'cyan',
+                  'G. bic': 'purple',
+                  'Z. muc': 'magenta'}
+
+    # Compute each and plot each ellipsoid iteratively
+    for row in range(ellipNumber):
+        # your ellispsoid and center in matrix form
+        A = np.array([[df['X'][row], 0, 0],
+                      [0, df['Y'][row], 0],
+                      [0, 0, df['Z'][row]]])
+
+        center = [df['X'][row], df['Y'][row], df['Z'][row]]
+
+        # print species
+        # find the rotation matrix and radii of the axes
+        U, s, rotation = linalg.svd(A)
+        radii = (df['rx'][row], df['ry'][row], df['rz'][row])
+
+        # calculate cartesian coordinates for the ellipsoid surface
+        u = np.linspace(0.0, 2.0 * np.pi, 100)
+        v = np.linspace(0.0, np.pi, 100)
+        x = radii[0] * np.outer(np.cos(u), np.sin(v))
+        y = radii[1] * np.outer(np.sin(u), np.sin(v))
+        z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+
+        for i in range(len(x)):
+            for j in range(len(x)):
+                [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation) + center
+
+        # Get species
+        specie = df['SP'][row]
+        ax.plot_surface(x, y, z, rstride=2, cstride=2, color=color_code[specie], linewidth=0.1, alpha=0.5, shade=True)
+    plt.show()
+#plt.savefig("YOUR PATH HERE", dpi=300)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import OrderedDict
+from mpl_toolkits.mplot3d import Axes3D
+from numpy import linalg
+import matplotlib.colors as colors
+import numpy as np
+from matplotlib import cm
+
+# Open Spreadsheet in python
+excel_sheet = r'C:\Users\Josh Couture\Documents\Capstone\field_data_copy_xls.xls'
+col_names = ['SP', 'SX1', 'SX2', 'SY1', 'SY2', 'Stems', 'DBH', 'CX1', 'CX2', 'CY1', 'CY2', 'CZ1', 'CZ2', 'CZ3']
+
+# Plot Data
+fig, axes = plt.subplots(ncols=1, nrows=1, subplot_kw=dict(projection='3d'), figsize=(8, 8))
+fig.suptitle('Fire Plots: Thakadu', fontsize=16)
+ax_list = fig.axes
+
+plot_num = len(ax_list)
+
+for plot, ax in zip(range(plot_num), ax_list):
+    sht_name = 'P3'
+    print("Loading... " + sht_name)
+    df = pd.read_excel(excel_sheet, sheet_name=sht_name, usecols=col_names)
+    df = df.dropna()
+    df = df.reset_index(drop=True)
+
+    # Set the data for the radii
+    df['rx'] = (df.CX2 - df.CX1)/2
+    df['ry'] = (df.CY2 - df.CY1)/2
+    df['rz'] = (df.CZ3 - df.CZ1)/2
+    df['X'] = (df.CX2 + df.CX1)/2
+    df['Y'] = (df.CY2 + df.CY1)/2
+    df['Z'] = (df.CZ3 + df.CZ1)/2
+
+    # Get Number of Ellipsiods
+    ellipNumber = len(df['SP'].values)
+
+    # Set colour map so each ellipsoid as a unique colour
+    species = OrderedDict.fromkeys(df['SP'].values)
+
+    # Color code for species
+    color_code = {'S. mel': 'green',
+                  'GB': 'gray',
+                  'G. fla': 'blue',
+                  'C. her': 'black',
+                  'S. fle': 'pink',
+                  'G': 'olive',
+                  'D. cin': 'yellow',
+                  'R. bre': 'orange',
+                  'T. ser': 'gold',
+                  'R. ten': 'red',
+                  'V. eri': 'brown',
+                  'Sap': 'cyan',
+                  'G. bic': 'purple',
+                  'Z. muc': 'magenta'}
+
+    # Compute each and plot each ellipsoid iteratively
+    for row in range(ellipNumber):
+        # your ellispsoid and center in matrix form
+        A = np.array([[df['X'][row], 0, 0],
+                      [0, df['Y'][row], 0],
+                      [0, 0, df['Z'][row]]])
+
+        center = [df['X'][row], df['Y'][row], df['Z'][row]]
+
+        # print species
+        # find the rotation matrix and radii of the axes
+        U, s, rotation = linalg.svd(A)
+        radii = (df['rx'][row], df['ry'][row], df['rz'][row])
+
+        # calculate cartesian coordinates for the ellipsoid surface
+        u = np.linspace(0.0, 2.0 * np.pi, 100)
+        v = np.linspace(0.0, np.pi, 100)
+        x = radii[0] * np.outer(np.cos(u), np.sin(v))
+        y = radii[1] * np.outer(np.sin(u), np.sin(v))
+        z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+
+        for i in range(len(x)):
+            for j in range(len(x)):
+                [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation) + center
+
+        # Get species
+        specie = df['SP'][row]
+        ax.plot_surface(x, y, z, rstride=2, cstride=2, color=color_code[specie], linewidth=0.1, alpha=0.5, shade=True)
+    plt.show()
+#plt.savefig("YOUR PATH HERE", dpi=300)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import OrderedDict
+from mpl_toolkits.mplot3d import Axes3D
+from numpy import linalg
+import matplotlib.colors as colors
+import numpy as np
+from matplotlib import cm
+
+# Open Spreadsheet in python
+excel_sheet = r'C:\Users\Josh Couture\Documents\Capstone\field_data_copy_xls.xls'
+col_names = ['SP', 'SX1', 'SX2', 'SY1', 'SY2', 'Stems', 'DBH', 'CX1', 'CX2', 'CY1', 'CY2', 'CZ1', 'CZ2', 'CZ3']
+
+# Plot Data
+fig, axes = plt.subplots(ncols=1, nrows=1, subplot_kw=dict(projection='3d'), figsize=(8, 8))
+fig.suptitle('Fire Plots: Thakadu', fontsize=16)
+ax_list = fig.axes
+
+plot_num = len(ax_list)
+
+for plot, ax in zip(range(plot_num), ax_list):
+    sht_name = 'P4'
+    print("Loading... " + sht_name)
+    df = pd.read_excel(excel_sheet, sheet_name=sht_name, usecols=col_names)
+    df = df.dropna()
+    df = df.reset_index(drop=True)
+
+    # Set the data for the radii
+    df['rx'] = (df.CX2 - df.CX1)/2
+    df['ry'] = (df.CY2 - df.CY1)/2
+    df['rz'] = (df.CZ3 - df.CZ1)/2
+    df['X'] = (df.CX2 + df.CX1)/2
+    df['Y'] = (df.CY2 + df.CY1)/2
+    df['Z'] = (df.CZ3 + df.CZ1)/2
+
+    # Get Number of Ellipsiods
+    ellipNumber = len(df['SP'].values)
+
+    # Set colour map so each ellipsoid as a unique colour
+    species = OrderedDict.fromkeys(df['SP'].values)
+
+    # Color code for species
+    color_code = {'S. mel': 'green',
+                  'GB': 'gray',
+                  'G. fla': 'blue',
+                  'C. her': 'black',
+                  'S. fle': 'pink',
+                  'G': 'olive',
+                  'D. cin': 'yellow',
+                  'R. bre': 'orange',
+                  'T. ser': 'gold',
+                  'R. ten': 'red',
+                  'V. eri': 'brown',
+                  'Sap': 'cyan',
+                  'G. bic': 'purple',
+                  'Z. muc': 'magenta'}
+
+    # Compute each and plot each ellipsoid iteratively
+    for row in range(ellipNumber):
+        # your ellispsoid and center in matrix form
+        A = np.array([[df['X'][row], 0, 0],
+                      [0, df['Y'][row], 0],
+                      [0, 0, df['Z'][row]]])
+
+        center = [df['X'][row], df['Y'][row], df['Z'][row]]
+
+        # print species
+        # find the rotation matrix and radii of the axes
+        U, s, rotation = linalg.svd(A)
+        radii = (df['rx'][row], df['ry'][row], df['rz'][row])
+
+        # calculate cartesian coordinates for the ellipsoid surface
+        u = np.linspace(0.0, 2.0 * np.pi, 100)
+        v = np.linspace(0.0, np.pi, 100)
+        x = radii[0] * np.outer(np.cos(u), np.sin(v))
+        y = radii[1] * np.outer(np.sin(u), np.sin(v))
+        z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+
+        for i in range(len(x)):
+            for j in range(len(x)):
+                [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation) + center
+
+        # Get species
+        specie = df['SP'][row]
+        ax.plot_surface(x, y, z, rstride=2, cstride=2, color=color_code[specie], linewidth=0.1, alpha=0.5, shade=True)
+    plt.show()
+#plt.savefig("YOUR PATH HERE", dpi=300)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import OrderedDict
+from mpl_toolkits.mplot3d import Axes3D
+from numpy import linalg
+import matplotlib.colors as colors
+import numpy as np
+from matplotlib import cm
+
+# Open Spreadsheet in python
+excel_sheet = r'C:\Users\Josh Couture\Documents\Capstone\field_data_copy_xls.xls'
+col_names = ['SP', 'SX1', 'SX2', 'SY1', 'SY2', 'Stems', 'DBH', 'CX1', 'CX2', 'CY1', 'CY2', 'CZ1', 'CZ2', 'CZ3']
+
+# Plot Data
+fig, axes = plt.subplots(ncols=1, nrows=1, subplot_kw=dict(projection='3d'), figsize=(8, 8))
+fig.suptitle('Fire Plots: Thakadu', fontsize=16)
+ax_list = fig.axes
+
+plot_num = len(ax_list)
+
+for plot, ax in zip(range(plot_num), ax_list):
+    sht_name = 'P5'
+    print("Loading... " + sht_name)
+    df = pd.read_excel(excel_sheet, sheet_name=sht_name, usecols=col_names)
+    df = df.dropna()
+    df = df.reset_index(drop=True)
+
+    # Set the data for the radii
+    df['rx'] = (df.CX2 - df.CX1)/2
+    df['ry'] = (df.CY2 - df.CY1)/2
+    df['rz'] = (df.CZ3 - df.CZ1)/2
+    df['X'] = (df.CX2 + df.CX1)/2
+    df['Y'] = (df.CY2 + df.CY1)/2
+    df['Z'] = (df.CZ3 + df.CZ1)/2
+
+    # Get Number of Ellipsiods
+    ellipNumber = len(df['SP'].values)
+
+    # Set colour map so each ellipsoid as a unique colour
+    species = OrderedDict.fromkeys(df['SP'].values)
+
+    # Color code for species
+    color_code = {'S. mel': 'green',
+                  'GB': 'gray',
+                  'G. fla': 'blue',
+                  'C. her': 'black',
+                  'S. fle': 'pink',
+                  'G': 'olive',
+                  'D. cin': 'yellow',
+                  'R. bre': 'orange',
+                  'T. ser': 'gold',
+                  'R. ten': 'red',
+                  'V. eri': 'brown',
+                  'Sap': 'cyan',
+                  'G. bic': 'purple',
+                  'Z. muc': 'magenta'}
+
+    # Compute each and plot each ellipsoid iteratively
+    for row in range(ellipNumber):
+        # your ellispsoid and center in matrix form
+        A = np.array([[df['X'][row], 0, 0],
+                      [0, df['Y'][row], 0],
+                      [0, 0, df['Z'][row]]])
+
+        center = [df['X'][row], df['Y'][row], df['Z'][row]]
+
+        # print species
+        # find the rotation matrix and radii of the axes
+        U, s, rotation = linalg.svd(A)
+        radii = (df['rx'][row], df['ry'][row], df['rz'][row])
+
+        # calculate cartesian coordinates for the ellipsoid surface
+        u = np.linspace(0.0, 2.0 * np.pi, 100)
+        v = np.linspace(0.0, np.pi, 100)
+        x = radii[0] * np.outer(np.cos(u), np.sin(v))
+        y = radii[1] * np.outer(np.sin(u), np.sin(v))
+        z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+
+        for i in range(len(x)):
+            for j in range(len(x)):
+                [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation) + center
+
+        # Get species
+        specie = df['SP'][row]
+        ax.plot_surface(x, y, z, rstride=2, cstride=2, color=color_code[specie], linewidth=0.1, alpha=0.5, shade=True)
+    plt.show()
+#plt.savefig("YOUR PATH HERE", dpi=300)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import OrderedDict
+from mpl_toolkits.mplot3d import Axes3D
+from numpy import linalg
+import matplotlib.colors as colors
+import numpy as np
+from matplotlib import cm
+
+# Open Spreadsheet in python
+excel_sheet = r'C:\Users\Josh Couture\Documents\Capstone\field_data_copy_xls.xls'
+col_names = ['SP', 'SX1', 'SX2', 'SY1', 'SY2', 'Stems', 'DBH', 'CX1', 'CX2', 'CY1', 'CY2', 'CZ1', 'CZ2', 'CZ3']
+
+# Plot Data
+fig, axes = plt.subplots(ncols=1, nrows=1, subplot_kw=dict(projection='3d'), figsize=(8, 8))
+fig.suptitle('Fire Plots: Thakadu', fontsize=16)
+ax_list = fig.axes
+
+plot_num = len(ax_list)
+
+for plot, ax in zip(range(plot_num), ax_list):
+    sht_name = 'P6'
+    print("Loading... " + sht_name)
+    df = pd.read_excel(excel_sheet, sheet_name=sht_name, usecols=col_names)
+    df = df.dropna()
+    df = df.reset_index(drop=True)
+
+    # Set the data for the radii
+    df['rx'] = (df.CX2 - df.CX1)/2
+    df['ry'] = (df.CY2 - df.CY1)/2
+    df['rz'] = (df.CZ3 - df.CZ1)/2
+    df['X'] = (df.CX2 + df.CX1)/2
+    df['Y'] = (df.CY2 + df.CY1)/2
+    df['Z'] = (df.CZ3 + df.CZ1)/2
+
+    # Get Number of Ellipsiods
+    ellipNumber = len(df['SP'].values)
+
+    # Set colour map so each ellipsoid as a unique colour
+    species = OrderedDict.fromkeys(df['SP'].values)
+
+    # Color code for species
+    color_code = {'S. mel': 'green',
+                  'GB': 'gray',
+                  'G. fla': 'blue',
+                  'C. her': 'black',
+                  'S. fle': 'pink',
+                  'G': 'olive',
+                  'D. cin': 'yellow',
+                  'R. bre': 'orange',
+                  'T. ser': 'gold',
+                  'R. ten': 'red',
+                  'V. eri': 'brown',
+                  'Sap': 'cyan',
+                  'G. bic': 'purple',
+                  'Z. muc': 'magenta'}
+
+    # Compute each and plot each ellipsoid iteratively
+    for row in range(ellipNumber):
+        # your ellispsoid and center in matrix form
+        A = np.array([[df['X'][row], 0, 0],
+                      [0, df['Y'][row], 0],
+                      [0, 0, df['Z'][row]]])
+
+        center = [df['X'][row], df['Y'][row], df['Z'][row]]
+
+        # print species
+        # find the rotation matrix and radii of the axes
+        U, s, rotation = linalg.svd(A)
+        radii = (df['rx'][row], df['ry'][row], df['rz'][row])
+
+        # calculate cartesian coordinates for the ellipsoid surface
+        u = np.linspace(0.0, 2.0 * np.pi, 100)
+        v = np.linspace(0.0, np.pi, 100)
+        x = radii[0] * np.outer(np.cos(u), np.sin(v))
+        y = radii[1] * np.outer(np.sin(u), np.sin(v))
+        z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+
+        for i in range(len(x)):
+            for j in range(len(x)):
+                [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation) + center
+
+        # Get species
+        specie = df['SP'][row]
+        ax.plot_surface(x, y, z, rstride=2, cstride=2, color=color_code[specie], linewidth=0.1, alpha=0.5, shade=True)
+    plt.show()
+#plt.savefig("YOUR PATH HERE", dpi=300)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import OrderedDict
+from mpl_toolkits.mplot3d import Axes3D
+from numpy import linalg
+import matplotlib.colors as colors
+import numpy as np
+from matplotlib import cm
+
+# Open Spreadsheet in python
+excel_sheet = r'C:\Users\Josh Couture\Documents\Capstone\field_data_copy_xls.xls'
+col_names = ['SP', 'SX1', 'SX2', 'SY1', 'SY2', 'Stems', 'DBH', 'CX1', 'CX2', 'CY1', 'CY2', 'CZ1', 'CZ2', 'CZ3']
+
+# Plot Data
+fig, axes = plt.subplots(ncols=1, nrows=1, subplot_kw=dict(projection='3d'), figsize=(8, 8))
+fig.suptitle('Fire Plots: Thakadu', fontsize=16)
+ax_list = fig.axes
+
+plot_num = len(ax_list)
+
+for plot, ax in zip(range(plot_num), ax_list):
+    sht_name = 'P7'
+    print("Loading... " + sht_name)
+    df = pd.read_excel(excel_sheet, sheet_name=sht_name, usecols=col_names)
+    df = df.dropna()
+    df = df.reset_index(drop=True)
+
+    # Set the data for the radii
+    df['rx'] = (df.CX2 - df.CX1)/2
+    df['ry'] = (df.CY2 - df.CY1)/2
+    df['rz'] = (df.CZ3 - df.CZ1)/2
+    df['X'] = (df.CX2 + df.CX1)/2
+    df['Y'] = (df.CY2 + df.CY1)/2
+    df['Z'] = (df.CZ3 + df.CZ1)/2
+
+    # Get Number of Ellipsiods
+    ellipNumber = len(df['SP'].values)
+
+    # Set colour map so each ellipsoid as a unique colour
+    species = OrderedDict.fromkeys(df['SP'].values)
+
+    # Color code for species
+    color_code = {'S. mel': 'green',
+                  'GB': 'gray',
+                  'G. fla': 'blue',
+                  'C. her': 'black',
+                  'S. fle': 'pink',
+                  'G': 'olive',
+                  'D. cin': 'yellow',
+                  'R. bre': 'orange',
+                  'T. ser': 'gold',
+                  'R. ten': 'red',
+                  'V. eri': 'brown',
+                  'Sap': 'cyan',
+                  'G. bic': 'purple',
+                  'Z. muc': 'magenta'}
+
+    # Compute each and plot each ellipsoid iteratively
+    for row in range(ellipNumber):
+        # your ellispsoid and center in matrix form
+        A = np.array([[df['X'][row], 0, 0],
+                      [0, df['Y'][row], 0],
+                      [0, 0, df['Z'][row]]])
+
+        center = [df['X'][row], df['Y'][row], df['Z'][row]]
+
+        # print species
+        # find the rotation matrix and radii of the axes
+        U, s, rotation = linalg.svd(A)
+        radii = (df['rx'][row], df['ry'][row], df['rz'][row])
+
+        # calculate cartesian coordinates for the ellipsoid surface
+        u = np.linspace(0.0, 2.0 * np.pi, 100)
+        v = np.linspace(0.0, np.pi, 100)
+        x = radii[0] * np.outer(np.cos(u), np.sin(v))
+        y = radii[1] * np.outer(np.sin(u), np.sin(v))
+        z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+
+        for i in range(len(x)):
+            for j in range(len(x)):
+                [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation) + center
+
+        # Get species
+        specie = df['SP'][row]
+        ax.plot_surface(x, y, z, rstride=2, cstride=2, color=color_code[specie], linewidth=0.1, alpha=0.5, shade=True)
+    plt.show()
+#plt.savefig("YOUR PATH HERE", dpi=300)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import OrderedDict
+from mpl_toolkits.mplot3d import Axes3D
+from numpy import linalg
+import matplotlib.colors as colors
+import numpy as np
+from matplotlib import cm
+
+# Open Spreadsheet in python
+excel_sheet = r'C:\Users\Josh Couture\Documents\Capstone\field_data_copy_xls.xls'
+col_names = ['SP', 'SX1', 'SX2', 'SY1', 'SY2', 'Stems', 'DBH', 'CX1', 'CX2', 'CY1', 'CY2', 'CZ1', 'CZ2', 'CZ3']
+
+# Plot Data
+fig, axes = plt.subplots(ncols=1, nrows=1, subplot_kw=dict(projection='3d'), figsize=(8, 8))
+fig.suptitle('Fire Plots: Thakadu', fontsize=16)
+ax_list = fig.axes
+
+plot_num = len(ax_list)
+
+for plot, ax in zip(range(plot_num), ax_list):
+    sht_name = 'P8'
+    print("Loading... " + sht_name)
+    df = pd.read_excel(excel_sheet, sheet_name=sht_name, usecols=col_names)
+    df = df.dropna()
+    df = df.reset_index(drop=True)
+
+    # Set the data for the radii
+    df['rx'] = (df.CX2 - df.CX1)/2
+    df['ry'] = (df.CY2 - df.CY1)/2
+    df['rz'] = (df.CZ3 - df.CZ1)/2
+    df['X'] = (df.CX2 + df.CX1)/2
+    df['Y'] = (df.CY2 + df.CY1)/2
+    df['Z'] = (df.CZ3 + df.CZ1)/2
+
+    # Get Number of Ellipsiods
+    ellipNumber = len(df['SP'].values)
+
+    # Set colour map so each ellipsoid as a unique colour
+    species = OrderedDict.fromkeys(df['SP'].values)
+
+    # Color code for species
+    color_code = {'S. mel': 'green',
+                  'GB': 'gray',
+                  'G. fla': 'blue',
+                  'C. her': 'black',
+                  'S. fle': 'pink',
+                  'G': 'olive',
+                  'D. cin': 'yellow',
+                  'R. bre': 'orange',
+                  'T. ser': 'gold',
+                  'R. ten': 'red',
+                  'V. eri': 'brown',
+                  'Sap': 'cyan',
+                  'G. bic': 'purple',
+                  'Z. muc': 'magenta'}
+
+    # Compute each and plot each ellipsoid iteratively
+    for row in range(ellipNumber):
+        # your ellispsoid and center in matrix form
+        A = np.array([[df['X'][row], 0, 0],
+                      [0, df['Y'][row], 0],
+                      [0, 0, df['Z'][row]]])
+
+        center = [df['X'][row], df['Y'][row], df['Z'][row]]
+
+        # print species
+        # find the rotation matrix and radii of the axes
+        U, s, rotation = linalg.svd(A)
+        radii = (df['rx'][row], df['ry'][row], df['rz'][row])
+
+        # calculate cartesian coordinates for the ellipsoid surface
+        u = np.linspace(0.0, 2.0 * np.pi, 100)
+        v = np.linspace(0.0, np.pi, 100)
+        x = radii[0] * np.outer(np.cos(u), np.sin(v))
+        y = radii[1] * np.outer(np.sin(u), np.sin(v))
+        z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+
+        for i in range(len(x)):
+            for j in range(len(x)):
+                [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation) + center
+
+        # Get species
+        specie = df['SP'][row]
+        ax.plot_surface(x, y, z, rstride=2, cstride=2, color=color_code[specie], linewidth=0.1, alpha=0.5, shade=True)
+    plt.show()
+#plt.savefig("YOUR PATH HERE", dpi=300)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import OrderedDict
+from mpl_toolkits.mplot3d import Axes3D
+from numpy import linalg
+import matplotlib.colors as colors
+import numpy as np
+from matplotlib import cm
+
+# Open Spreadsheet in python
+excel_sheet = r'C:\Users\Josh Couture\Documents\Capstone\field_data_copy_xls.xls'
+col_names = ['SP', 'SX1', 'SX2', 'SY1', 'SY2', 'Stems', 'DBH', 'CX1', 'CX2', 'CY1', 'CY2', 'CZ1', 'CZ2', 'CZ3']
+
+# Plot Data
+fig, axes = plt.subplots(ncols=1, nrows=1, subplot_kw=dict(projection='3d'), figsize=(8, 8))
+fig.suptitle('Fire Plots: Thakadu', fontsize=16)
+ax_list = fig.axes
+
+plot_num = len(ax_list)
+
+for plot, ax in zip(range(plot_num), ax_list):
+    sht_name = 'P9'
+    print("Loading... " + sht_name)
+    df = pd.read_excel(excel_sheet, sheet_name=sht_name, usecols=col_names)
+    df = df.dropna()
+    df = df.reset_index(drop=True)
+
+    # Set the data for the radii
+    df['rx'] = (df.CX2 - df.CX1)/2
+    df['ry'] = (df.CY2 - df.CY1)/2
+    df['rz'] = (df.CZ3 - df.CZ1)/2
+    df['X'] = (df.CX2 + df.CX1)/2
+    df['Y'] = (df.CY2 + df.CY1)/2
+    df['Z'] = (df.CZ3 + df.CZ1)/2
+
+    # Get Number of Ellipsiods
+    ellipNumber = len(df['SP'].values)
+
+    # Set colour map so each ellipsoid as a unique colour
+    species = OrderedDict.fromkeys(df['SP'].values)
+
+    # Color code for species
+    color_code = {'S. mel': 'green',
+                  'GB': 'gray',
+                  'G. fla': 'blue',
+                  'C. her': 'black',
+                  'S. fle': 'pink',
+                  'G': 'olive',
+                  'D. cin': 'yellow',
+                  'R. bre': 'orange',
+                  'T. ser': 'gold',
+                  'R. ten': 'red',
+                  'V. eri': 'brown',
+                  'Sap': 'cyan',
+                  'G. bic': 'purple',
+                  'Z. muc': 'magenta'}
+
+    # Compute each and plot each ellipsoid iteratively
+    for row in range(ellipNumber):
+        # your ellispsoid and center in matrix form
+        A = np.array([[df['X'][row], 0, 0],
+                      [0, df['Y'][row], 0],
+                      [0, 0, df['Z'][row]]])
+
+        center = [df['X'][row], df['Y'][row], df['Z'][row]]
+
+        # print species
+        # find the rotation matrix and radii of the axes
+        U, s, rotation = linalg.svd(A)
+        radii = (df['rx'][row], df['ry'][row], df['rz'][row])
+
+        # calculate cartesian coordinates for the ellipsoid surface
+        u = np.linspace(0.0, 2.0 * np.pi, 100)
+        v = np.linspace(0.0, np.pi, 100)
+        x = radii[0] * np.outer(np.cos(u), np.sin(v))
+        y = radii[1] * np.outer(np.sin(u), np.sin(v))
+        z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+
+        for i in range(len(x)):
+            for j in range(len(x)):
+                [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation) + center
+
+        # Get species
+        specie = df['SP'][row]
+        ax.plot_surface(x, y, z, rstride=2, cstride=2, color=color_code[specie], linewidth=0.1, alpha=0.5, shade=True)
+    plt.show()
+#plt.savefig("YOUR PATH HERE", dpi=300)
